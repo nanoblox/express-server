@@ -2,11 +2,11 @@ import express from "express";
 import {
   isUniverseIdInDb,
   approveByUniverseId,
+  rejectByUniverseId,
 } from "../../../../services/database/utilities/games";
 import * as unverifiedGamesCollection from "../../../../services/database/collections/unverifiedGames";
 import Messages from "../../../../utilities/messages";
 import getIntegerFromRequestBody from "../../../../utilities/input/getIntegerFromRequestBody";
-import getUniverseIdFromPlaceId from "../../../../utilities/roblox/getUniverseIdFromPlaceId";
 import getGameInformationFromPlaceId from "../../../../utilities/roblox/getGameInformationFromPlaceId";
 import serverErrorResponse from "../../../../utilities/serverErrorResponse";
 import {
@@ -92,7 +92,32 @@ router.post("/approve", async (request, response) => {
   }
 });
 
-router.post("/decline", notImplemented, async (request, response) => {});
+router.post("/reject", async (request, response) => {
+  try {
+    const universeId = getIntegerFromRequestBody(request.body, "universeId");
+
+    if (!(await unverifiedGamesCollection.containsUniverseId(universeId)))
+      return response.status(200).json({
+        success: false,
+        errors: new Messages().add(
+          ["rejectionFailed"],
+          "Game does not exists in unverified games database"
+        ),
+      });
+
+    await rejectByUniverseId(universeId);
+
+    return response.status(200).json({
+      success: true,
+      messages: new Messages().add(
+        ["rejectionSucceeded"],
+        "Game has been successfully rejected"
+      ),
+    });
+  } catch (error) {
+    return serverErrorResponse(error, response);
+  }
+});
 
 router.get("/page", notImplemented, async (request, response) => {});
 
