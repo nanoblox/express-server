@@ -11,8 +11,9 @@ export async function isUniverseIdInDb(universeId) {
   return false;
 }
 
-export async function approveByGameId(universeId) {
-  const game = await unverifiedGames.getByUniverseId(universeId);
+export async function approveByUniverseId(universeId) {
+  const { _id, ...game } = await unverifiedGames.getByUniverseId(universeId);
+  await unverifiedGames.removeByUniverseId(universeId);
   if (game) await verifiedGames.add(game);
 }
 

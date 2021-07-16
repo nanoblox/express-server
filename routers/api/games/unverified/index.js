@@ -1,21 +1,26 @@
 import express from "express";
-import { isUniverseIdInDb } from "../../../../services/database/utilities/games";
+import {
+  isUniverseIdInDb,
+  approveByUniverseId,
+} from "../../../../services/database/utilities/games";
 import * as unverifiedGamesCollection from "../../../../services/database/collections/unverifiedGames";
 import Messages from "../../../../utilities/messages";
-import getPlaceIdFromRequestBody from "../../../../utilities/getPlaceIdFromRequestBody";
+import getIntegerFromRequestBody from "../../../../utilities/input/getIntegerFromRequestBody";
+import getUniverseIdFromPlaceId from "../../../../utilities/roblox/getUniverseIdFromPlaceId";
 import getGameInformationFromPlaceId from "../../../../utilities/roblox/getGameInformationFromPlaceId";
-
-import notImplemented from "../../../../middlewares/notImplemented";
+import serverErrorResponse from "../../../../utilities/serverErrorResponse";
 import {
   MINIMUM_PLAYER_VISITS,
   MINIMUM_ACTIVE_PLAYERS,
 } from "../../../../utilities/constants";
 
+import notImplemented from "../../../../middlewares/notImplemented";
+
 const router = express.Router();
 
 router.post("/add", async (request, response) => {
   try {
-    const placeId = getPlaceIdFromRequestBody(request.body);
+    const placeId = getIntegerFromRequestBody(request.body, "placeId");
     const { universeId, visits, playing } = await getGameInformationFromPlaceId(
       placeId
     );
@@ -24,7 +29,7 @@ router.post("/add", async (request, response) => {
       return response.status(200).json({
         success: false,
         errors: new Messages().add(
-          ["submissionRejected"],
+          ["submissionFailed"],
           "Game is already verified or being verified"
         ),
       });
@@ -33,7 +38,7 @@ router.post("/add", async (request, response) => {
       return response.status(200).json({
         success: false,
         errors: new Messages().add(
-          ["submissionRejected"],
+          ["submissionFailed"],
           `Game needs to have at least ${MINIMUM_PLAYER_VISITS} total visits to be submitted`
         ),
       });
@@ -42,31 +47,50 @@ router.post("/add", async (request, response) => {
       return response.status(200).json({
         success: false,
         errors: new Messages().add(
-          ["submissionRejected"],
+          ["submissionFailed"],
           `Game needs to have at least ${MINIMUM_ACTIVE_PLAYERS} active players to be submitted`
         ),
       });
 
     await unverifiedGamesCollection.add({ universeId });
     return response.status(200).json({
-      success: false,
+      success: true,
       messages: new Messages().add(
-        ["submissionApproved"],
+        ["submissionSucceeded"],
         "Game has been submitted for verification"
       ),
     });
   } catch (error) {
-    console.log(error);
-    return response.status(500).json({
-      success: false,
-      errors: new Messages().add(["server"], error.message),
-    });
+    return serverErrorResponse(error, response);
   }
 });
 
-router.post("/remove", notImplemented, async (request, response) => {});
+router.post("/approve", async (request, response) => {
+  try {
+    const universeId = getIntegerFromRequestBody(request.body, "universeId");
 
-router.post("/approve", notImplemented, async (request, response) => {});
+    if (!(await unverifiedGamesCollection.containsUniverseId(universeId)))
+      return response.status(200).json({
+        success: false,
+        errors: new Messages().add(
+          ["approvalFailed"],
+          "Game does not exists in unverified games database"
+        ),
+      });
+
+    await approveByUniverseId(universeId);
+
+    return response.status(200).json({
+      success: true,
+      messages: new Messages().add(
+        ["approvalSucceeded"],
+        "Game has been successfully approved"
+      ),
+    });
+  } catch (error) {
+    return serverErrorResponse(error, response);
+  }
+});
 
 router.post("/decline", notImplemented, async (request, response) => {});
 

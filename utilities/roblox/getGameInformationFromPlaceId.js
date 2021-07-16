@@ -1,19 +1,14 @@
 import fetch from "node-fetch";
+import getUniverseIdFromPlaceId from "./getUniverseIdFromPlaceId";
 
 export default async function getGameInformationFromPlaceId(placeId) {
-  const universeIdResponse = await fetch(
-    `https://api.roblox.com/universes/get-universe-containing-place?placeid=${placeId}`
-  );
+  const universeId = await getUniverseIdFromPlaceId(placeId);
 
-  const { UniverseId: universeId } = await universeIdResponse.json();
-
-  if (!universeId) throw Error("Invalid placeId");
-
-  const universeDataResponse = await fetch(
+  const response = await fetch(
     `https://games.roblox.com/v1/games?universeIds=${universeId}`
   );
 
-  const universeData = (await universeDataResponse.json()).data[0];
+  const universeData = (await response.json()).data[0];
 
   if (!universeData) throw Error("Invalid universeId");
 
