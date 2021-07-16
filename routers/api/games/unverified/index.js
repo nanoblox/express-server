@@ -6,7 +6,8 @@ import {
 } from "../../../../services/database/utilities/games";
 import * as unverifiedGamesCollection from "../../../../services/database/collections/unverifiedGames";
 import Messages from "../../../../utilities/messages";
-import getIntegerFromRequestBody from "../../../../utilities/input/getIntegerFromRequestBody";
+import getIntegerFromInput from "../../../../utilities/input/getIntegerFromInput";
+import getObjectIdFromInput from "../../../../utilities/input/getObjectIdFromInput";
 import getGameInformationFromPlaceId from "../../../../utilities/roblox/getGameInformationFromPlaceId";
 import serverErrorResponse from "../../../../utilities/serverErrorResponse";
 import {
@@ -14,13 +15,11 @@ import {
   MINIMUM_ACTIVE_PLAYERS,
 } from "../../../../utilities/constants";
 
-import notImplemented from "../../../../middlewares/notImplemented";
-
 const router = express.Router();
 
 router.post("/add", async (request, response) => {
   try {
-    const placeId = getIntegerFromRequestBody(request.body, "placeId");
+    const placeId = getIntegerFromInput(request.body, "placeId");
     const { universeId, visits, playing } = await getGameInformationFromPlaceId(
       placeId
     );
@@ -67,7 +66,7 @@ router.post("/add", async (request, response) => {
 
 router.post("/approve", async (request, response) => {
   try {
-    const universeId = getIntegerFromRequestBody(request.body, "universeId");
+    const universeId = getIntegerFromInput(request.body, "universeId");
 
     if (!(await unverifiedGamesCollection.containsUniverseId(universeId)))
       return response.status(200).json({
@@ -94,7 +93,7 @@ router.post("/approve", async (request, response) => {
 
 router.post("/reject", async (request, response) => {
   try {
-    const universeId = getIntegerFromRequestBody(request.body, "universeId");
+    const universeId = getIntegerFromInput(request.body, "universeId");
 
     if (!(await unverifiedGamesCollection.containsUniverseId(universeId)))
       return response.status(200).json({
@@ -119,8 +118,31 @@ router.post("/reject", async (request, response) => {
   }
 });
 
-router.get("/page", notImplemented, async (request, response) => {});
+router.get("/page", async (request, response) => {
+  try {
+    const firstPage = await unverifiedGamesCollection.getFirstPage();
 
-router.get("/page/:_id", notImplemented, async (request, response) => {});
+    return response.status(200).json({
+      success: true,
+      payload: firstPage,
+    });
+  } catch (error) {
+    return serverErrorResponse(error, response);
+  }
+});
+
+router.get("/page/:_id", async (request, response) => {
+  try {
+    const _id = getObjectIdFromInput(request.params);
+    const page = await unverifiedGamesCollection.getPageByObjectId(_id);
+
+    return response.status(200).json({
+      success: true,
+      payload: page,
+    });
+  } catch (error) {
+    return serverErrorResponse(error, response);
+  }
+});
 
 export default router;
