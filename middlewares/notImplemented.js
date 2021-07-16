@@ -1,11 +1,8 @@
+import Messages from "../utilities/messages";
+
 export default function notImplemented(request, response, next) {
-  return response.status(200).json({
+  return response.status(501).json({
     success: false,
-    errors: [
-      {
-        path: ["server"],
-        message: "This API is not implmented.",
-      },
-    ],
+    errors: new Messages().add(["error"], "Not Implemented"),
   });
 }
