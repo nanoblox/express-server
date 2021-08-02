@@ -34,3 +34,14 @@ export async function getPageByObjectId(objectId) {
     ])
     .toArray();
 }
+
+export async function updateUniverseDataByObjectId(objectId, data) {
+  return await collection.updateOne(
+    { _id: objectId },
+    {
+      $set: {
+        data,
+      },
+    }
+  );
+}

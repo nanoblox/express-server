@@ -8,7 +8,7 @@ import * as unverifiedGamesCollection from "../../../../services/database/collec
 import Messages from "../../../../utilities/messages";
 import getIntegerFromInput from "../../../../utilities/input/getIntegerFromInput";
 import getObjectIdFromInput from "../../../../utilities/input/getObjectIdFromInput";
-import getGameInformationFromPlaceId from "../../../../utilities/roblox/getGameInformationFromPlaceId";
+import getUniverseIdFromPlaceId from "../../../../utilities/roblox/getUniverseIdFromPlaceId";
 import serverErrorResponse from "../../../../utilities/serverErrorResponse";
 import {
   MINIMUM_PLAYER_VISITS,
@@ -20,9 +20,7 @@ const router = express.Router();
 router.post("/add", async (request, response) => {
   try {
     const placeId = getIntegerFromInput(request.body, "placeId");
-    const { universeId, visits, playing } = await getGameInformationFromPlaceId(
-      placeId
-    );
+    const universeId = await getUniverseIdFromPlaceId(placeId);
 
     if (await isUniverseIdInDb(universeId))
       return response.status(200).json({
@@ -121,6 +119,8 @@ router.post("/reject", async (request, response) => {
 router.get("/page", async (request, response) => {
   try {
     const firstPage = await unverifiedGamesCollection.getFirstPage();
+    if (firstPage.length === 0)
+      return response.status(200).json({ success: true, payload: [] });
 
     return response.status(200).json({
       success: true,
@@ -135,6 +135,8 @@ router.get("/page/:_id", async (request, response) => {
   try {
     const _id = getObjectIdFromInput(request.params);
     const page = await unverifiedGamesCollection.getPageByObjectId(_id);
+    if (page.length === 0)
+      return response.status(200).json({ success: true, payload: [] });
 
     return response.status(200).json({
       success: true,
