@@ -10,10 +10,22 @@ const router = express.Router();
 
 router.get("/page", async (request, response) => {
   try {
+    if (!cache.connected) {
+      const firstPage = await verifiedGamesCollection.getFirstPage();
+      if (firstPage.length === 0)
+        return response.status(200).json({ success: true, payload: [] });
+
+      const loadedPage = await loadAndUpdatePage(firstPage);
+      return response.status(200).json({
+        success: true,
+        payload: loadedPage,
+      });
+    }
+
     const redisKey = "page";
     cache.get(redisKey, async (error, reply) => {
-      reply = JSON.parse(reply);
       if (reply) {
+        reply = JSON.parse(reply);
         return response.status(200).json({
           success: true,
           payload: reply,
@@ -40,11 +52,23 @@ router.get("/page", async (request, response) => {
 
 router.get("/page/:_id", async (request, response) => {
   try {
+    if (!cache.connected) {
+      const page = await verifiedGamesCollection.getPageByObjectId(_id);
+      if (page.length === 0)
+        return response.status(200).json({ success: true, payload: [] });
+
+      const loadedPage = await loadAndUpdatePage(page);
+      return response.status(200).json({
+        success: true,
+        payload: loadedPage,
+      });
+    }
+
     const _id = getObjectIdFromInput(request.params);
     const redisKey = `page.${_id.toHexString()}`;
     cache.get(redisKey, async (error, reply) => {
-      reply = JSON.parse(reply);
       if (reply) {
+        reply = JSON.parse(reply);
         return response.status(200).json({
           success: true,
           payload: reply,
