@@ -10,7 +10,6 @@ export default async function loadAndUpdatePage(page) {
   );
 
   if (universeRecordsRequiringUpdate.length === 0) {
-    console.log("Database Hit");
     return page;
   }
 
@@ -48,8 +47,6 @@ export default async function loadAndUpdatePage(page) {
     ...universeRecordsNotRequiringUpdate,
     ...loadedUniverseRecords,
   ];
-
-  console.log("Roblox Hit");
 
   return loadedPage;
 }
