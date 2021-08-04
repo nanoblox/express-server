@@ -25,6 +25,7 @@ router.get("/page", async (request, response) => {
     const redisKey = "page";
     cache.get(redisKey, async (error, reply) => {
       if (reply) {
+        console.log("Cache Hit");
         reply = JSON.parse(reply);
         return response.status(200).json({
           success: true,

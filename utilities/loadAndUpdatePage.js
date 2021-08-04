@@ -9,7 +9,10 @@ export default async function loadAndUpdatePage(page) {
       (Date.now() - universeRecord.lastDataUpdate) / 1000 > DATA_UPDATE_INTERVAL
   );
 
-  if (universeRecordsRequiringUpdate.length === 0) return page;
+  if (universeRecordsRequiringUpdate.length === 0) {
+    console.log("Database Hit");
+    return page;
+  }
 
   const universeRecordsNotRequiringUpdate = page.filter((universeRecord) =>
     universeRecordsRequiringUpdate.every((requiringUpdateUniverseRecord) => {
@@ -45,6 +48,8 @@ export default async function loadAndUpdatePage(page) {
     ...universeRecordsNotRequiringUpdate,
     ...loadedUniverseRecords,
   ];
+
+  console.log("Roblox Hit");
 
   return loadedPage;
 }
