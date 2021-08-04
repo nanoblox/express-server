@@ -5,6 +5,7 @@ import { VERIFIED_PAGE_SIZE } from "../../../../utilities/constants";
 const collection = db.collection("verifiedGames");
 
 export async function add(game) {
+  game.verifiedDate = new Date();
   const { ops: addedGame } = await collection.insertOne(game);
 
   return addedGame;
@@ -41,6 +42,7 @@ export async function updateUniverseDataByObjectId(objectId, data) {
     {
       $set: {
         data,
+        lastDataUpdate: Date.now(),
       },
     }
   );

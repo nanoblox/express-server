@@ -9,6 +9,7 @@ import Messages from "../../../../utilities/messages";
 import getIntegerFromInput from "../../../../utilities/input/getIntegerFromInput";
 import getObjectIdFromInput from "../../../../utilities/input/getObjectIdFromInput";
 import getUniverseIdFromPlaceId from "../../../../utilities/roblox/getUniverseIdFromPlaceId";
+import getUniverseDataFromUniverseIds from "../../../../utilities/roblox/getUniverseDataFromUniverseIds";
 import serverErrorResponse from "../../../../utilities/serverErrorResponse";
 import {
   MINIMUM_PLAYER_VISITS,
@@ -21,6 +22,8 @@ router.post("/add", async (request, response) => {
   try {
     const placeId = getIntegerFromInput(request.body, "placeId");
     const universeId = await getUniverseIdFromPlaceId(placeId);
+    const data = (await getUniverseDataFromUniverseIds([universeId]))[0].data;
+    const { totalVisits, onlinePlayers } = data;
 
     if (await isUniverseIdInDb(universeId))
       return response.status(200).json({
@@ -31,7 +34,7 @@ router.post("/add", async (request, response) => {
         ),
       });
 
-    if (visits < MINIMUM_PLAYER_VISITS)
+    if (totalVisits < MINIMUM_PLAYER_VISITS)
       return response.status(200).json({
         success: false,
         errors: new Messages().add(
@@ -40,7 +43,7 @@ router.post("/add", async (request, response) => {
         ),
       });
 
-    if (playing < MINIMUM_ACTIVE_PLAYERS)
+    if (onlinePlayers < MINIMUM_ACTIVE_PLAYERS)
       return response.status(200).json({
         success: false,
         errors: new Messages().add(
@@ -49,7 +52,7 @@ router.post("/add", async (request, response) => {
         ),
       });
 
-    await unverifiedGamesCollection.add({ universeId });
+    await unverifiedGamesCollection.add({ universeId, data });
     return response.status(200).json({
       success: true,
       messages: new Messages().add(

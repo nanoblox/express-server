@@ -27,6 +27,7 @@ export default async function getUniverseDataFromUniverseIds(universeIds) {
       creatorName: universeData.creator.name,
       creatorType: universeData.creator.type,
       onlinePlayers: universeData.playing,
+      totalVisits: universeData.visits,
       totalFavorites: universeData.favoritedCount,
       thumbnailUrl: universesThumbnailData.filter(
         (universeThumbnailData) =>
