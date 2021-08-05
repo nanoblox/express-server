@@ -20,7 +20,7 @@ const router = express.Router();
 
 router.post("/add", async (request, response) => {
   try {
-    const placeId = getIntegerFromInput(request.body, "placeId");
+    const placeId = getIntegerFromInput(request.body.placeId);
     const universeId = await getUniverseIdFromPlaceId(placeId);
     const data = (await getUniverseDataFromUniverseIds([universeId]))[0].data;
     const { totalVisits, onlinePlayers } = data;
@@ -67,7 +67,7 @@ router.post("/add", async (request, response) => {
 
 router.post("/approve", async (request, response) => {
   try {
-    const universeId = getIntegerFromInput(request.body, "universeId");
+    const universeId = getIntegerFromInput(request.body.universeId);
 
     if (!(await unverifiedGamesCollection.containsUniverseId(universeId)))
       return response.status(200).json({
@@ -94,7 +94,7 @@ router.post("/approve", async (request, response) => {
 
 router.post("/reject", async (request, response) => {
   try {
-    const universeId = getIntegerFromInput(request.body, "universeId");
+    const universeId = getIntegerFromInput(request.body.universeId);
 
     if (!(await unverifiedGamesCollection.containsUniverseId(universeId)))
       return response.status(200).json({

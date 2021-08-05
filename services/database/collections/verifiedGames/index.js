@@ -5,7 +5,7 @@ import { VERIFIED_PAGE_SIZE } from "../../../../utilities/constants";
 const collection = db.collection("verifiedGames");
 
 export async function add(game) {
-  game.verifiedDate = new Date();
+  game.verifiedDate = Date.now();
   const { ops: addedGame } = await collection.insertOne(game);
 
   return addedGame;
@@ -23,16 +23,35 @@ export async function containsUniverseId(universeId) {
   return await collection.find({ universeId }).limit(1).hasNext();
 }
 
-export async function getFirstPage() {
-  return await collection.find({}).limit(VERIFIED_PAGE_SIZE).toArray();
+export async function getRecentlyAddedFirstPage() {
+  return await collection
+    .find({})
+    .sort({ verifiedDate: -1 })
+    .limit(VERIFIED_PAGE_SIZE)
+    .toArray();
 }
 
-export async function getPageByObjectId(objectId) {
+export async function getRecentlyAddedPage(lastVerifiedDate) {
   return await collection
-    .aggregate([
-      { $match: { _id: { $gt: objectId } } },
-      { $limit: VERIFIED_PAGE_SIZE },
-    ])
+    .find({ verifiedDate: { $lt: lastVerifiedDate } })
+    .sort({ verifiedDate: -1 })
+    .limit(VERIFIED_PAGE_SIZE)
+    .toArray();
+}
+
+export async function getMostPopularFirstPage() {
+  return await collection
+    .find({})
+    .sort({ "data.onlinePlayers": -1 })
+    .limit(VERIFIED_PAGE_SIZE)
+    .toArray();
+}
+
+export async function getMostPopularPage(lastOnlinePlayers) {
+  return await collection
+    .find({ "data.onlinePlayers": { $lt: lastOnlinePlayers } })
+    .sort({ "data.onlinePlayers": -1 })
+    .limit(VERIFIED_PAGE_SIZE)
     .toArray();
 }
 
