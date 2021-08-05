@@ -27,6 +27,7 @@ export default async function loadAndUpdatePage(page) {
     (universeRecord) => ({
       _id: universeRecord._id,
       universeId: universeRecord.universeId,
+      verifiedDate: universeRecord.verifiedDate,
       data: data.filter(
         (datum) => datum.universeId === universeRecord.universeId
       )[0]?.data,

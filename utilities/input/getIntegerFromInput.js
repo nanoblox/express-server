@@ -1,5 +1,5 @@
-export default function getIntegerFromInput(input, field) {
-  const integer = parseInt(input[field]);
+export default function getIntegerFromInput(input) {
+  const integer = parseInt(input);
 
   if (isNaN(integer) || !isFinite(integer))
     throw new TypeError("Invalid input");
