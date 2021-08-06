@@ -55,6 +55,18 @@ export async function getMostPopularPage(lastOnlinePlayers) {
     .toArray();
 }
 
+export async function getSearchPage(searchString, pageNumber) {
+  return await collection
+    .find(
+      { $text: { $search: searchString } },
+      { score: { $meta: "textScore" } }
+    )
+    .sort({ score: { $meta: "textScore" } })
+    .skip(VERIFIED_PAGE_SIZE * pageNumber)
+    .limit(VERIFIED_PAGE_SIZE)
+    .toArray();
+}
+
 export async function updateUniverseDataByObjectId(objectId, data) {
   return await collection.updateOne(
     { _id: objectId },
