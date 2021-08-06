@@ -11,7 +11,6 @@ router.get("/page/recentlyadded", async (request, response) => {
   try {
     const payload = await useCache("r", async () => {
       const page = await verifiedGamesCollection.getRecentlyAddedFirstPage();
-      console.log(page.length);
       if (page.length === 0)
         return { payload: [], meta: { shouldCache: false } };
 
@@ -86,6 +85,35 @@ router.get(
         const loadedPage = await loadAndUpdatePage(page);
         return { payload: loadedPage, meta: { shouldCache: true } };
       });
+
+      return response.status(200).json({ success: true, payload });
+    } catch (error) {
+      return serverErrorResponse(error, response);
+    }
+  }
+);
+
+router.get(
+  "/page/search/:searchString/:pageNumber",
+  async (request, response) => {
+    try {
+      const { searchString } = request.params;
+      const pageNumber = parseInt(request.params.pageNumber);
+
+      const payload = await useCache(
+        `s.${searchString}.${pageNumber}`,
+        async () => {
+          const page = await verifiedGamesCollection.getSearchPage(
+            searchString,
+            pageNumber
+          );
+          if (page.length === 0)
+            return { payload: [], meta: { shouldCache: false } };
+
+          const loadedPage = await loadAndUpdatePage(page);
+          return { payload: loadedPage, meta: { shouldCache: true } };
+        }
+      );
 
       return response.status(200).json({ success: true, payload });
     } catch (error) {
