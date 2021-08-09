@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.get("/page/recentlyadded", async (request, response) => {
   try {
-    const payload = await useCache("r", async () => {
+    const payload = await useCache("recentlyadded", async () => {
       const page = await verifiedGamesCollection.getRecentlyAddedFirstPage();
       if (page.length === 0)
         return { payload: [], meta: { shouldCache: false } };
@@ -26,7 +26,7 @@ router.get("/page/recentlyadded", async (request, response) => {
 
 router.get("/page/mostpopular", async (request, response) => {
   try {
-    const payload = await useCache("m", async () => {
+    const payload = await useCache("mostpopular", async () => {
       const page = await verifiedGamesCollection.getMostPopularFirstPage();
       if (page.length === 0)
         return { payload: [], meta: { shouldCache: false } };
@@ -49,16 +49,19 @@ router.get(
         request.params.lastVerifiedDate
       );
 
-      const payload = await useCache(`r.${lastVerifiedDate}`, async () => {
-        const page = await verifiedGamesCollection.getRecentlyAddedPage(
-          lastVerifiedDate
-        );
-        if (page.length === 0)
-          return { payload: [], meta: { shouldCache: false } };
+      const payload = await useCache(
+        `recentlyadded.${lastVerifiedDate}`,
+        async () => {
+          const page = await verifiedGamesCollection.getRecentlyAddedPage(
+            lastVerifiedDate
+          );
+          if (page.length === 0)
+            return { payload: [], meta: { shouldCache: false } };
 
-        const loadedPage = await loadAndUpdatePage(page);
-        return { payload: loadedPage, meta: { shouldCache: true } };
-      });
+          const loadedPage = await loadAndUpdatePage(page);
+          return { payload: loadedPage, meta: { shouldCache: true } };
+        }
+      );
 
       return response.status(200).json({ success: true, payload });
     } catch (error) {
@@ -75,16 +78,19 @@ router.get(
         request.params.lastOnlinePlayers
       );
 
-      const payload = await useCache(`m.${lastOnlinePlayers}`, async () => {
-        const page = await verifiedGamesCollection.getMostPopularPage(
-          lastOnlinePlayers
-        );
-        if (page.length === 0)
-          return { payload: [], meta: { shouldCache: false } };
+      const payload = await useCache(
+        `mostpopular.${lastOnlinePlayers}`,
+        async () => {
+          const page = await verifiedGamesCollection.getMostPopularPage(
+            lastOnlinePlayers
+          );
+          if (page.length === 0)
+            return { payload: [], meta: { shouldCache: false } };
 
-        const loadedPage = await loadAndUpdatePage(page);
-        return { payload: loadedPage, meta: { shouldCache: true } };
-      });
+          const loadedPage = await loadAndUpdatePage(page);
+          return { payload: loadedPage, meta: { shouldCache: true } };
+        }
+      );
 
       return response.status(200).json({ success: true, payload });
     } catch (error) {
@@ -101,7 +107,7 @@ router.get(
       const pageNumber = parseInt(request.params.pageNumber);
 
       const payload = await useCache(
-        `s.${searchString}.${pageNumber}`,
+        `search.${searchString}.${pageNumber}`,
         async () => {
           const page = await verifiedGamesCollection.getSearchPage(
             searchString,
