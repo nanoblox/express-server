@@ -23,10 +23,13 @@ router.get("/page/:objectId", async (request, response) => {
   try {
     const _id = new mongodb.ObjectId(request.params.objectId);
 
-    const payload = await useCache("resources", async () => {
-      const page = await resourcesCollection.GetPageByObjectId(_id);
-      return { payload: page, meta: { shouldCache: true } };
-    });
+    const payload = await useCache(
+      `resources.${_id.toHexString()}`,
+      async () => {
+        const page = await resourcesCollection.GetPageByObjectId(_id);
+        return { payload: page, meta: { shouldCache: true } };
+      }
+    );
 
     return response.status(200).json({ success: true, payload });
   } catch (error) {
