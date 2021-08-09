@@ -1,5 +1,6 @@
 export const UNVERIFIED_PAGE_SIZE = 8;
 export const VERIFIED_PAGE_SIZE = 8;
+export const RESOURCES_PAGE_SIZE = 8;
 
 export const MINIMUM_PLAYER_VISITS = 10000;
 export const MINIMUM_ACTIVE_PLAYERS = 50;
