@@ -1,6 +1,6 @@
 import db from "../..";
 
-import { VERIFIED_PAGE_SIZE } from "../../../../utilities/constants";
+import { PAGE_SIZE } from "../../../../utilities/constants";
 
 const collection = db.collection("verifiedGames");
 
@@ -27,7 +27,7 @@ export async function getRecentlyAddedFirstPage() {
   return await collection
     .find({})
     .sort({ verifiedDate: -1 })
-    .limit(VERIFIED_PAGE_SIZE)
+    .limit(PAGE_SIZE)
     .toArray();
 }
 
@@ -35,7 +35,7 @@ export async function getRecentlyAddedPage(lastVerifiedDate) {
   return await collection
     .find({ verifiedDate: { $lt: lastVerifiedDate } })
     .sort({ verifiedDate: -1 })
-    .limit(VERIFIED_PAGE_SIZE)
+    .limit(PAGE_SIZE)
     .toArray();
 }
 
@@ -43,7 +43,7 @@ export async function getMostPopularFirstPage() {
   return await collection
     .find({})
     .sort({ "data.onlinePlayers": -1 })
-    .limit(VERIFIED_PAGE_SIZE)
+    .limit(PAGE_SIZE)
     .toArray();
 }
 
@@ -51,7 +51,7 @@ export async function getMostPopularPage(lastOnlinePlayers) {
   return await collection
     .find({ "data.onlinePlayers": { $lt: lastOnlinePlayers } })
     .sort({ "data.onlinePlayers": -1 })
-    .limit(VERIFIED_PAGE_SIZE)
+    .limit(PAGE_SIZE)
     .toArray();
 }
 
@@ -62,8 +62,8 @@ export async function getSearchPage(searchString, pageNumber) {
       { score: { $meta: "textScore" } }
     )
     .sort({ score: { $meta: "textScore" } })
-    .skip(VERIFIED_PAGE_SIZE * pageNumber)
-    .limit(VERIFIED_PAGE_SIZE)
+    .skip(PAGE_SIZE * pageNumber)
+    .limit(PAGE_SIZE)
     .toArray();
 }
 

@@ -1,6 +1,6 @@
 import db from "../..";
 
-import { UNVERIFIED_PAGE_SIZE } from "../../../../utilities/constants";
+import { PAGE_SIZE } from "../../../../utilities/constants";
 
 const collection = db.collection("unverifiedGames");
 
@@ -24,14 +24,11 @@ export async function containsUniverseId(universeId) {
 }
 
 export async function getFirstPage() {
-  return await collection.find({}).limit(UNVERIFIED_PAGE_SIZE).toArray();
+  return await collection.find({}).limit(PAGE_SIZE).toArray();
 }
 
 export async function getPageByObjectId(objectId) {
   return await collection
-    .aggregate([
-      { $match: { _id: { $gt: objectId } } },
-      { $limit: UNVERIFIED_PAGE_SIZE },
-    ])
+    .aggregate([{ $match: { _id: { $gt: objectId } } }, { $limit: PAGE_SIZE }])
     .toArray();
 }
