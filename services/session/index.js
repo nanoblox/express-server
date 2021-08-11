@@ -19,9 +19,11 @@ export default session({
   resave: false,
   saveUninitialized: true,
   store: sessionStore,
+  proxy: true,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
-    sameSite: true,
+    sameSite: "none",
+    secure: true,
     httpOnly: true,
   },
 });

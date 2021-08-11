@@ -11,8 +11,11 @@ dotenv.config();
 
 const app = express();
 
+app.enable("trust proxy");
+
 const corsOptions = {
   origin: process.env.CORS_ORIGIN,
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
