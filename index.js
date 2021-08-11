@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import session from "./services/session";
 
 import "./services/database";
 
@@ -17,6 +18,8 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(session);
 
 app.use("/", routers);
 
